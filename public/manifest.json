@@ -1,6 +1,6 @@
 {
   "name": "Mutu Audio Studio Pro",
-  "short_name": "Audio Studio",
+  "short_name": "Mutu Studio",
   "description": "A futuristic React application for audio generation with a cyber-minimalist theme.",
   "start_url": "/",
   "display": "standalone",

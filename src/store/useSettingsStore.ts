@@ -33,8 +33,8 @@ interface SettingsState {
   isSettingsOpen: boolean;
   setSettingsOpen: (isOpen: boolean) => void;
 
-  activeSettingsPage: 'api' | 'appearance' | 'model' | null;
-  setActiveSettingsPage: (page: 'api' | 'appearance' | 'model' | null) => void;
+  activeSettingsPage: 'api' | 'appearance' | 'model' | 'guide' | null;
+  setActiveSettingsPage: (page: 'api' | 'appearance' | 'model' | 'guide' | null) => void;
 
   isSidebarOpen: boolean;
   setSidebarOpen: (isOpen: boolean) => void;

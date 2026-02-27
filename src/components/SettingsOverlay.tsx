@@ -1,6 +1,6 @@
 import { useState, useEffect, FormEvent, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { X, Key, ShieldCheck, AlertCircle, Palette, Cpu, Moon, Sun, ChevronLeft, Settings2, Eye, EyeOff, Pipette, Plus, CheckCircle2 } from 'lucide-react';
+import { X, Key, ShieldCheck, AlertCircle, Palette, Cpu, Moon, Sun, ChevronLeft, Settings2, Eye, EyeOff, Pipette, Plus, CheckCircle2, BookOpen, Languages } from 'lucide-react';
 import { useSettingsStore } from '../store/useSettingsStore';
 import clsx from 'clsx';
 
@@ -43,6 +43,7 @@ export default function SettingsOverlay() {
   const [error, setError] = useState('');
   const [showAllColors, setShowAllColors] = useState(false);
   const colorInputRef = useRef<HTMLInputElement>(null);
+  const [guideLanguage, setGuideLanguage] = useState<'en' | 'bn'>('en');
 
   useEffect(() => {
     if (isSettingsOpen && !apiKey && !activeSettingsPage) {
@@ -317,12 +318,89 @@ export default function SettingsOverlay() {
           </motion.div>
         );
 
+      case 'guide':
+        return (
+          <motion.div 
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="max-w-2xl w-full"
+          >
+            <div className="flex items-center justify-between mb-8">
+              <div className="flex items-center gap-4">
+                <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-[var(--color-neon-cyan-dim)] text-[var(--color-neon-cyan)] border border-[var(--color-neon-cyan)]/30">
+                  <BookOpen size={32} />
+                </div>
+                <h3 className="text-3xl font-bold text-[var(--color-text-primary)]">
+                  {guideLanguage === 'en' ? 'User Guide' : 'ব্যবহারকারী গাইড'}
+                </h3>
+              </div>
+              <button 
+                onClick={() => setGuideLanguage(guideLanguage === 'en' ? 'bn' : 'en')}
+                className="flex items-center gap-2 px-4 py-2 rounded-xl border border-[var(--color-glass-border)] bg-[var(--color-bg-surface)] hover:bg-[var(--color-bg-hover)] transition-all text-[var(--color-text-primary)]"
+              >
+                <Languages size={18} className="text-[var(--color-neon-cyan)]" />
+                <span className="text-sm font-bold uppercase tracking-widest">
+                  {guideLanguage === 'en' ? 'বাংলা' : 'English'}
+                </span>
+              </button>
+            </div>
+
+            <div className="space-y-6 text-[var(--color-text-secondary)] leading-relaxed">
+              {guideLanguage === 'en' ? (
+                <>
+                  <div className="p-6 rounded-3xl border border-[var(--color-glass-border)] bg-[var(--color-bg-surface)]">
+                    <h4 className="text-lg font-bold text-[var(--color-text-primary)] mb-3 flex items-center gap-2">
+                      <Key size={18} className="text-[var(--color-neon-cyan)]" />
+                      How to use the API Key
+                    </h4>
+                    <p className="mb-2">1. Get your free Gemini API key from Google AI Studio.</p>
+                    <p className="mb-2">2. Go to the <strong>API Config</strong> section in this app's settings.</p>
+                    <p>3. Paste your key and click "Save Configuration". Your key is stored locally and securely in your browser.</p>
+                  </div>
+
+                  <div className="p-6 rounded-3xl border border-[var(--color-glass-border)] bg-[var(--color-bg-surface)]">
+                    <h4 className="text-lg font-bold text-[var(--color-text-primary)] mb-3 flex items-center gap-2">
+                      <AlertCircle size={18} className="text-[var(--color-neon-cyan)]" />
+                      Daily Limits & Usage
+                    </h4>
+                    <p className="mb-2"><strong>Free Tier Limits:</strong> The Gemini API free tier allows up to 1,500 requests per day.</p>
+                    <p className="mb-2"><strong>Word Count:</strong> For optimal performance and to avoid timeouts, it is recommended to keep individual scripts under 1,000 words per generation.</p>
+                    <p><strong>Rate Limits:</strong> You can make up to 15 requests per minute. If you exceed this, wait a minute before trying again.</p>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="p-6 rounded-3xl border border-[var(--color-glass-border)] bg-[var(--color-bg-surface)]">
+                    <h4 className="text-lg font-bold text-[var(--color-text-primary)] mb-3 flex items-center gap-2">
+                      <Key size={18} className="text-[var(--color-neon-cyan)]" />
+                      এপিআই (API) কী কীভাবে ব্যবহার করবেন
+                    </h4>
+                    <p className="mb-2">১. Google AI Studio থেকে আপনার বিনামূল্যের Gemini API কী সংগ্রহ করুন।</p>
+                    <p className="mb-2">২. এই অ্যাপের সেটিংসে <strong>API Config</strong> সেকশনে যান।</p>
+                    <p>৩. আপনার কী পেস্ট করুন এবং "Save Configuration" এ ক্লিক করুন। আপনার কী আপনার ব্রাউজারে স্থানীয়ভাবে এবং নিরাপদে সংরক্ষিত থাকে।</p>
+                  </div>
+
+                  <div className="p-6 rounded-3xl border border-[var(--color-glass-border)] bg-[var(--color-bg-surface)]">
+                    <h4 className="text-lg font-bold text-[var(--color-text-primary)] mb-3 flex items-center gap-2">
+                      <AlertCircle size={18} className="text-[var(--color-neon-cyan)]" />
+                      দৈনিক সীমা এবং ব্যবহার
+                    </h4>
+                    <p className="mb-2"><strong>ফ্রি টিয়ার লিমিট:</strong> Gemini API ফ্রি টিয়ারে প্রতিদিন ১৫০০টি পর্যন্ত রিকোয়েস্ট করা যায়।</p>
+                    <p className="mb-2"><strong>শব্দ সীমা:</strong> ভালো পারফরম্যান্সের জন্য এবং টাইমআউট এড়াতে, প্রতিটি স্ক্রিপ্ট ১০০০ শব্দের নিচে রাখার পরামর্শ দেওয়া হচ্ছে।</p>
+                    <p><strong>রেট লিমিট:</strong> আপনি প্রতি মিনিটে ১৫টি পর্যন্ত রিকোয়েস্ট করতে পারবেন। এর বেশি হলে, পুনরায় চেষ্টা করার আগে এক মিনিট অপেক্ষা করুন।</p>
+                  </div>
+                </>
+              )}
+            </div>
+          </motion.div>
+        );
+
       default:
         return (
           <motion.div 
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="max-w-2xl w-full grid grid-cols-1 md:grid-cols-3 gap-6"
+            className="max-w-3xl w-full grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6"
           >
             <button
               onClick={() => setActiveSettingsPage('api')}
@@ -362,6 +440,20 @@ export default function SettingsOverlay() {
               <div className="text-center">
                 <h4 className="text-sm font-bold text-[var(--color-text-primary)] uppercase tracking-widest mb-1">Neural Engine</h4>
                 <p className="text-[10px] text-[var(--color-text-secondary)] uppercase tracking-tighter">Model Tuning</p>
+              </div>
+              <div className="h-1 w-8 rounded-full bg-[var(--accent-primary)] opacity-20 group-hover:opacity-100 transition-opacity shadow-[0_0_10px_var(--accent-primary)]" />
+            </button>
+
+            <button
+              onClick={() => setActiveSettingsPage('guide')}
+              className="group flex flex-col items-center justify-center gap-6 rounded-[2rem] border border-[var(--color-glass-border)] bg-[var(--color-bg-surface)] p-10 transition-all hover:border-[var(--accent-primary)]/50 hover:bg-[var(--accent-dim)]"
+            >
+              <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-[var(--accent-dim)] text-[var(--accent-primary)] border border-[var(--accent-primary)]/30 group-hover:scale-110 transition-transform shadow-[0_0_15px_var(--accent-dim)]">
+                <BookOpen size={32} />
+              </div>
+              <div className="text-center">
+                <h4 className="text-sm font-bold text-[var(--color-text-primary)] uppercase tracking-widest mb-1">User Guide</h4>
+                <p className="text-[10px] text-[var(--color-text-secondary)] uppercase tracking-tighter">Documentation</p>
               </div>
               <div className="h-1 w-8 rounded-full bg-[var(--accent-primary)] opacity-20 group-hover:opacity-100 transition-opacity shadow-[0_0_10px_var(--accent-primary)]" />
             </button>

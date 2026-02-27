@@ -1,7 +1,7 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#7b2cbf" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-  <rect x="8" y="3" width="8" height="12" rx="4" ry="4" />
-  <polygon points="5,10 8,13 8,7 5,10" fill="#7b2cbf" stroke="none" opacity="0.8"/>
-  <polygon points="19,10 16,13 16,7 19,10" fill="#7b2cbf" stroke="none" opacity="0.8"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#2ecc71" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M12 3v10a3 3 0 0 1-6 0V8" />
+  <path d="M18 8v5a3 3 0 0 1-6 0V8" />
   <path d="M12 19v3" />
-  <circle cx="12" cy="22" r="1.5" fill="#7b2cbf" stroke="none"/>
+  <path d="M9 23l3-3 3 3" fill="#2ecc71" stroke="none"/>
+  <path d="M8 6c2-2 6-2 8 0" stroke="#27ae60" stroke-width="1.5"/>
 </svg>

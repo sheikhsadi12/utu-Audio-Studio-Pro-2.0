@@ -1,29 +1,27 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#c0c0c0" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#7b2cbf" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
   <defs>
-    <linearGradient id="metal" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#e0e0e0"/>
-      <stop offset="30%" stop-color="#ffffff"/>
-      <stop offset="70%" stop-color="#a0a0a0"/>
-      <stop offset="100%" stop-color="#606060"/>
+    <linearGradient id="plasma" x1="0%" y1="0%" x2="100%" y2="0%" gradientTransform="rotate(45)">
+      <stop offset="0%" stop-color="#9d4edd">
+        <animate attributeName="stop-color" values="#9d4edd;#c77dff;#9d4edd" dur="2s" repeatCount="indefinite" />
+      </stop>
+      <stop offset="50%" stop-color="#5a189a">
+        <animate attributeName="stop-color" values="#5a189a;#7b2cbf;#5a189a" dur="2s" repeatCount="indefinite" />
+      </stop>
+      <stop offset="100%" stop-color="#3c096c">
+        <animate attributeName="stop-color" values="#3c096c;#9d4edd;#3c096c" dur="2s" repeatCount="indefinite" />
+      </stop>
     </linearGradient>
-    <filter id="metal-shine">
-      <feSpecularLighting surfaceScale="5" specularConstant="1" specularExponent="20" lighting-color="#ffffff">
-        <fePointLight x="5000" y="5000" z="10000"/>
-      </feSpecularLighting>
+    <filter id="plasma-flow">
+      <feTurbulence baseFrequency="0.03" numOctaves="3" seed="2"/>
+      <feColorMatrix in="turbulence" mode="saturate" values="2"/>
     </filter>
   </defs>
   
-  <!-- মেটালিক বডি -->
-  <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 1 0 6 0V5a3 3 0 0 0-3-3z" stroke="url(#metal)" stroke-width="2.5" filter="url(#metal-shine)"/>
+  <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 1 0 6 0V5a3 3 0 0 0-3-3z" stroke="url(#plasma)" stroke-width="2" filter="url(#plasma-flow)"/>
+  <path d="M19 10v2a7 7 0 0 1-14 0v-2" stroke="url(#plasma)" stroke-width="2" filter="url(#plasma-flow)"/>
   
-  <!-- টেক্সচার লাইন -->
-  <line x1="9" y1="6" x2="15" y2="6" stroke="#404040" stroke-width="0.5"/>
-  <line x1="9" y1="9" x2="15" y2="9" stroke="#404040" stroke-width="0.5"/>
-  <line x1="9" y1="12" x2="15" y2="12" stroke="#404040" stroke-width="0.5"/>
-  
-  <path d="M19 10v2a7 7 0 0 1-14 0v-2" stroke="url(#metal)" stroke-width="2"/>
-  
-  <!-- ক্রোম বেস -->
-  <circle cx="12" cy="22" r="2" fill="url(#metal)" stroke="none"/>
-  <line x1="12" y1="19" x2="12" y2="21" stroke="#404040" stroke-width="1"/>
+  <!-- প্লাজমা বল -->
+  <circle cx="12" cy="22" r="2.5" fill="none" stroke="url(#plasma)" stroke-width="1.5">
+    <animate attributeName="r" values="2.5;3;2.5" dur="2s" repeatCount="indefinite" />
+  </circle>
 </svg>

@@ -1,31 +1,30 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#ff6b6b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
   <defs>
-    <radialGradient id="core" cx="50%" cy="50%" r="50%">
-      <stop offset="0%" stop-color="#ff0080" stop-opacity="1"/>
-      <stop offset="50%" stop-color="#7400b8" stop-opacity="0.8"/>
-      <stop offset="100%" stop-color="#000000" stop-opacity="0"/>
-    </radialGradient>
-    <filter id="energy">
-      <feTurbulence baseFrequency="0.05" numOctaves="2" result="turb"/>
-      <feDisplacementMap in="SourceGraphic" in2="turb" scale="3" xChannelSelector="R" yChannelSelector="G"/>
+    <linearGradient id="diamond" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.9"/>
+      <stop offset="50%" stop-color="#a8e6cf" stop-opacity="0.7"/>
+      <stop offset="100%" stop-color="#d4edfa" stop-opacity="0.9"/>
+    </linearGradient>
+    <filter id="shine">
+      <feDiffuseLighting in="SourceGraphic" surfaceScale="2" diffuseConstant="2">
+        <feDistantLight azimuth="225" elevation="30"/>
+      </feDiffuseLighting>
     </filter>
+    <clipPath id="crystal">
+      <polygon points="12,2 18,5 18,11 12,14 6,11 6,5"/>
+    </clipPath>
   </defs>
   
-  <!-- এনার্জি ফিল্ড -->
-  <circle cx="12" cy="12" r="11" fill="url(#core)" stroke="none" opacity="0.3"/>
+  <!-- ক্রিস্টাল বেস -->
+  <polygon points="12,2 18,5 18,11 12,14 6,11 6,5" fill="url(#diamond)" stroke="url(#diamond)" stroke-width="1.5" filter="url(#shine)"/>
   
-  <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 1 0 6 0V5a3 3 0 0 0-3-3z" stroke="#ff0080" filter="url(#energy)"/>
-  <path d="M19 10v2a7 7 0 0 1-14 0v-2" stroke="#7400b8" filter="url(#energy)"/>
+  <!-- মাইক্রোফোন ডিটেল -->
+  <circle cx="12" cy="8" r="2" fill="none" stroke="white" stroke-width="1"/>
+  <path d="M12 10v4" stroke="white" stroke-width="1.5"/>
   
-  <!-- পার্টিকেল ইফেক্ট -->
-  <circle cx="8" cy="8" r="0.8" fill="#ff0080" stroke="none">
-    <animate attributeName="cx" values="8;10;8" dur="3s" repeatCount="indefinite" />
-    <animate attributeName="cy" values="8;6;8" dur="3s" repeatCount="indefinite" />
-  </circle>
-  <circle cx="16" cy="16" r="0.8" fill="#7400b8" stroke="none">
-    <animate attributeName="cx" values="16;14;16" dur="4s" repeatCount="indefinite" />
-    <animate attributeName="cy" values="16;18;16" dur="4s" repeatCount="indefinite" />
-  </circle>
+  <path d="M19 10v2a7 7 0 0 1-14 0v-2" stroke="white" stroke-width="1.2" opacity="0.8"/>
   
-  <line x1="12" y1="19" x2="12" y2="22" stroke="#ff0080" stroke-width="3" stroke-dasharray="2 2"/>
+  <!-- ডায়মন্ড স্ট্যান্ড -->
+  <path d="M10 22h4" stroke="white" stroke-width="2"/>
+  <path d="M12 19v3" stroke="white" stroke-width="2"/>
 </svg>

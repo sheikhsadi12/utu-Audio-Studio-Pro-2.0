@@ -1,4 +1,4 @@
-const CACHE_NAME = 'mutu-audio-studio-v1';
+const CACHE_NAME = 'ai-audio-studio-v1';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',

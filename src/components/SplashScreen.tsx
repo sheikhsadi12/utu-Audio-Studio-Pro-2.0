@@ -38,7 +38,7 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
             transition={{ delay: 0.2 }}
             className="text-3xl font-bold text-[var(--color-text-primary)] tracking-widest uppercase mb-2"
           >
-            AI Audio Studio
+            Mutu Audio Studio
           </motion.h1>
           
           <motion.div 
@@ -48,7 +48,7 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
             className="flex items-center justify-center gap-3 text-[var(--color-neon-cyan)]"
           >
             <Loader2 size={16} className="animate-spin" />
-            <span className="text-xs font-mono uppercase tracking-[0.2em]">Neural Processing...</span>
+            <span className="text-xs font-mono uppercase tracking-[0.2em]">মুটু আসছে...</span>
           </motion.div>
         </div>
       </motion.div>

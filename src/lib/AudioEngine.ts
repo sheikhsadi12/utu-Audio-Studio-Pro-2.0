@@ -92,75 +92,89 @@ class AudioEngine {
         textChunks.push(processedWords.slice(i, i + chunkSize).join(" "));
       }
 
-      const audioBuffers: AudioBuffer[] = [];
+      const audioBuffers: (AudioBuffer | null)[] = new Array(textChunks.length).fill(null);
       const systemInstruction = "You are a professional voice artist. Speak with a steady, slow, and consistent pace (0.9x speed). Maintain a calm tone. Do NOT speed up at the end of the script.";
 
-      for (let i = 0; i < textChunks.length; i++) {
-        if (this.abortController.signal.aborted) break;
-        
-        const chunk = textChunks[i];
-        const pitchValue = voicePitch === 0 ? "default" : `${voicePitch > 0 ? '+' : ''}${voicePitch * 2}st`;
-        
-        const response = await this.retry(async () => {
-          if (clonedVoiceData) {
-            // Voice Cloning Mode
-            const audioPart = {
-              inlineData: {
-                mimeType: "audio/mp3",
-                data: clonedVoiceData.split(',')[1] || clonedVoiceData,
-              },
-            };
-            const textPart = {
-              text: `${systemInstruction}\n\nStyle: ${styleInstruction || 'Natural and clear'}. Text: "${chunk}"`,
-            };
-            
-            return await ai.models.generateContent({
-              model: "gemini-2.5-flash",
-              contents: [{ parts: [audioPart, textPart] }],
-              config: {
-                responseModalities: [Modality.AUDIO],
-              },
-            });
-          } else {
-            // Standard TTS Mode
-            const prompt = `<speak><prosody rate="90%" pitch="${pitchValue}">${systemInstruction} Text: "${chunk}"</prosody></speak>`;
-            
-            return await ai.models.generateContent({
-              model: "gemini-2.5-flash-preview-tts",
-              contents: [{ parts: [{ text: prompt }] }],
-              config: {
-                responseModalities: [Modality.AUDIO],
-                speechConfig: {
-                  voiceConfig: {
-                    prebuiltVoiceConfig: { voiceName: selectedVoice },
+      // Process chunks with a concurrency limit to speed up generation without hitting rate limits too hard
+      const concurrencyLimit = 3;
+      let currentIndex = 0;
+
+      const processNextChunk = async (): Promise<void> => {
+        while (currentIndex < textChunks.length) {
+          if (this.abortController.signal.aborted) break;
+          
+          const i = currentIndex++;
+          const chunk = textChunks[i];
+          const pitchValue = voicePitch === 0 ? "default" : `${voicePitch > 0 ? '+' : ''}${voicePitch * 2}st`;
+          
+          const response = await this.retry(async () => {
+            if (clonedVoiceData) {
+              // Voice Cloning Mode
+              const audioPart = {
+                inlineData: {
+                  mimeType: "audio/mp3",
+                  data: clonedVoiceData.split(',')[1] || clonedVoiceData,
+                },
+              };
+              const textPart = {
+                text: `${systemInstruction}\n\nStyle: ${styleInstruction || 'Natural and clear'}. Text: "${chunk}"`,
+              };
+              
+              return await ai.models.generateContent({
+                model: "gemini-2.5-flash",
+                contents: [{ parts: [audioPart, textPart] }],
+                config: {
+                  responseModalities: [Modality.AUDIO],
+                },
+              });
+            } else {
+              // Standard TTS Mode
+              const prompt = `<speak><prosody rate="90%" pitch="${pitchValue}">${systemInstruction} Text: "${chunk}"</prosody></speak>`;
+              
+              return await ai.models.generateContent({
+                model: "gemini-2.5-flash-preview-tts",
+                contents: [{ parts: [{ text: prompt }] }],
+                config: {
+                  responseModalities: [Modality.AUDIO],
+                  speechConfig: {
+                    voiceConfig: {
+                      prebuiltVoiceConfig: { voiceName: selectedVoice },
+                    },
                   },
                 },
-              },
-            });
-          }
-        });
+              });
+            }
+          });
 
-        const base64Audio = response.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
-        if (base64Audio) {
-          const bytes = this.base64ToUint8(base64Audio);
-          const buffer = await this.decodeBytes(bytes);
-          if (buffer) {
-            audioBuffers.push(buffer);
+          const base64Audio = response.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
+          if (base64Audio) {
+            const bytes = this.base64ToUint8(base64Audio);
+            const buffer = await this.decodeBytes(bytes);
+            if (buffer) {
+              audioBuffers[i] = buffer;
+            }
           }
         }
+      };
+
+      const workers = [];
+      for (let i = 0; i < Math.min(concurrencyLimit, textChunks.length); i++) {
+        workers.push(processNextChunk());
       }
+      await Promise.all(workers);
 
       this.isStreamFinished = true;
+      const validBuffers = audioBuffers.filter((b): b is AudioBuffer => b !== null);
 
-      if (audioBuffers.length > 0) {
+      if (validBuffers.length > 0) {
         // Merge AudioBuffers
         const sampleRate = 24000;
-        const totalSamples = audioBuffers.reduce((acc, b) => acc + b.length, 0);
+        const totalSamples = validBuffers.reduce((acc, b) => acc + b.length, 0);
         const mergedBuffer = this.audioContext!.createBuffer(1, totalSamples, sampleRate);
         const channelData = mergedBuffer.getChannelData(0);
         
         let offset = 0;
-        for (const b of audioBuffers) {
+        for (const b of validBuffers) {
             const data = b.getChannelData(0);
             this.applyMicroFade(b);
             channelData.set(data, offset);

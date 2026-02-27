@@ -92,7 +92,7 @@ class AudioEngine {
         textChunks.push(processedWords.slice(i, i + chunkSize).join(" "));
       }
 
-      const audioBlobs: Blob[] = [];
+      const audioBuffers: AudioBuffer[] = [];
       const systemInstruction = "You are a professional voice artist. Speak with a steady, slow, and consistent pace (0.9x speed). Maintain a calm tone. Do NOT speed up at the end of the script.";
 
       for (let i = 0; i < textChunks.length; i++) {
@@ -143,27 +143,39 @@ class AudioEngine {
         const base64Audio = response.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
         if (base64Audio) {
           const bytes = this.base64ToUint8(base64Audio);
-          audioBlobs.push(new Blob([bytes]));
+          const buffer = await this.decodeBytes(bytes);
+          if (buffer) {
+            audioBuffers.push(buffer);
+          }
         }
       }
 
       this.isStreamFinished = true;
 
-      if (audioBlobs.length > 0) {
-        // Merge all chunks into a single seamless MP3
-        const finalBlob = await this.mergeAudios(audioBlobs, 'gap', 0);
+      if (audioBuffers.length > 0) {
+        // Merge AudioBuffers
+        const sampleRate = 24000;
+        const totalSamples = audioBuffers.reduce((acc, b) => acc + b.length, 0);
+        const mergedBuffer = this.audioContext!.createBuffer(1, totalSamples, sampleRate);
+        const channelData = mergedBuffer.getChannelData(0);
+        
+        let offset = 0;
+        for (const b of audioBuffers) {
+            const data = b.getChannelData(0);
+            this.applyMicroFade(b);
+            channelData.set(data, offset);
+            offset += b.length;
+        }
+
+        const finalBlob = this.bufferToMp3(mergedBuffer);
         
         if (finalBlob) {
-          // Decode once to get the exact duration
-          const arrayBuffer = await finalBlob.arrayBuffer();
-          const fullBuffer = await this.audioContext!.decodeAudioData(arrayBuffer.slice(0));
-          
           await storageService.saveAudio({
             id: crypto.randomUUID(),
             title: `Recording ${new Date().toLocaleTimeString()}`,
             voice: selectedVoice,
             style: styleInstruction || 'Custom',
-            duration: fullBuffer.duration,
+            duration: mergedBuffer.duration,
             timestamp: Date.now(),
             blob: finalBlob,
           });

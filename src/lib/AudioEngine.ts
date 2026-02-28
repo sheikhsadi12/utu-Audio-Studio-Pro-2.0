@@ -84,8 +84,8 @@ class AudioEngine {
         }
       }
 
-      // 2. Split into chunks (~75 words per chunk for ~30s)
-      const chunkSize = 75;
+      // 2. Split into chunks (~150 words per chunk for ~1 min)
+      const chunkSize = 150;
       const textChunks: string[] = [];
       const processedWords = processedText.trim().split(/\s+/);
       for (let i = 0; i < processedWords.length; i += chunkSize) {
@@ -96,7 +96,7 @@ class AudioEngine {
       const systemInstruction = "You are a professional voice artist. Speak with a steady, slow, and consistent pace (0.9x speed). Maintain a calm tone. Do NOT speed up at the end of the script.";
 
       // Process chunks with a concurrency limit to speed up generation without hitting rate limits too hard
-      const concurrencyLimit = 3;
+      const concurrencyLimit = 2;
       let currentIndex = 0;
 
       const processNextChunk = async (): Promise<void> => {
@@ -104,6 +104,12 @@ class AudioEngine {
           if (this.abortController.signal.aborted) break;
           
           const i = currentIndex++;
+          
+          // Add a small delay between starting chunks to avoid burst rate limits
+          if (i > 0) {
+            await new Promise(resolve => setTimeout(resolve, 1500));
+          }
+          
           const chunk = textChunks[i];
           const pitchValue = voicePitch === 0 ? "default" : `${voicePitch > 0 ? '+' : ''}${voicePitch * 2}st`;
           
@@ -209,14 +215,22 @@ class AudioEngine {
     }
   }
 
-  private async retry<T>(fn: () => Promise<T>, retries = 3): Promise<T> {
+  private async retry<T>(fn: () => Promise<T>, retries = 4): Promise<T> {
     let lastError: any;
     for (let i = 0; i < retries; i++) {
       try {
         return await fn();
-      } catch (err) {
+      } catch (err: any) {
         lastError = err;
-        const delay = Math.pow(2, i) * 1000;
+        // Check if it's a rate limit error (429) or quota error
+        const isRateLimit = err?.status === 429 || 
+                            (err?.message && (err.message.includes('429') || err.message.includes('quota') || err.message.includes('exhausted')));
+        
+        // Wait much longer if we hit a rate limit
+        const baseDelay = isRateLimit ? 10000 : 2000;
+        const delay = baseDelay * Math.pow(1.5, i);
+        
+        console.warn(`[AudioEngine] Retry ${i + 1}/${retries} after ${delay}ms due to error:`, err);
         await new Promise(resolve => setTimeout(resolve, delay));
       }
     }
